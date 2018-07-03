@@ -8,17 +8,13 @@ var createArray = function (array, min, max) {
 };
 
 var getRandomNumber = function (min, max) {
-    var rand = min + Math.random() * (max + 1 - min);
-    rand = Math.floor(rand);
-    return rand;
-  }
+  var rand = min + Math.random() * (max + 1 - min);
+  rand = Math.floor(rand);
+  return rand;
+};
 
 var getRandomComments = function (arr) {
   return Math.floor(Math.random() * arr.length);
-};
-
-var removeHidden = function (querySelector) {
-  document.querySelector(querySelector).classList.remove('hidden');
 };
 
 var url = [];
@@ -34,14 +30,14 @@ var comments = [
   'Лица у людей на фотке перекошены, как будто их избивают. Как можно было поймать такой неудачный момент?!'
 ];
 
-var description = [
-  'Тестим новую камеру!',
-  'Затусили с друзьями на море',
-  'Как же круто тут кормят',
-  'Отдыхаем...',
-  'Цените каждое мгновенье. Цените тех, кто рядом с вами и отгоняйте все сомненья. Не обижайте всех словами......',
-  'Вот это тачка!'
-];
+//  var description = [
+//  'Тестим новую камеру!',
+//  'Затусили с друзьями на море',
+//  'Как же круто тут кормят',
+//  'Отдыхаем...',
+//  'Цените каждое мгновенье. Цените тех, кто рядом с вами и отгоняйте все сомненья. Не обижайте всех словами......',
+//  'Вот это тачка!'
+//  ];
 
 var renderPicture = function (i) {
   var pictureElement = picture.cloneNode(true);
@@ -71,6 +67,3 @@ var pictureList = function () {
 
 var pictures = document.querySelector('.pictures');
 pictures.appendChild(pictureList());
-
-
-
