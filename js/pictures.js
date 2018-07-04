@@ -25,12 +25,24 @@ var getRandomNumber = function (arr) {
   return Math.floor(Math.random() * arr.length);
 };
 
+var getRandomComments = function (arr) {
+	var RandomComments = [];
+	if (Math.random() < 0.5) {
+		RandomComments.push(arr[getRandomNumber(arr)]);
+	} else {
+		RandomComments.push(arr[getRandomNumber(arr)]);
+		RandomComments.push(arr[getRandomNumber(arr)]);
+	}
+
+	return RandomComments;
+}
+
 var createPicturesArray = function (array, url, comments) {
   for (var i = 0; i < url.length; i++) {
     array[i] = {
       src: url[i],
       likes: getRandomNumberRange(15, 200),
-      comments: comments[getRandomNumber(comments)],
+      comments: getRandomComments(comments),
       description: descriptionArray[getRandomNumber(descriptionArray)]
     };
     array.push(array[i]);
@@ -43,7 +55,7 @@ var renderPicture = function (i) {
 
   pictureElement.querySelector('.picture__img').src = pictureArray[i].src;
   pictureElement.querySelector('.picture__stat--likes').textContent = pictureArray[i].likes;
-  pictureElement.querySelector('.picture__stat--comments').textContent = pictureArray[i].comments;
+  pictureElement.querySelector('.picture__stat--comments').textContent = pictureArray[i].comments.length;
 
   return pictureElement;
 };
