@@ -26,16 +26,16 @@ var getRandomNumber = function (arr) {
 };
 
 var getRandomComments = function (arr) {
-	var RandomComments = [];
-	if (Math.random() < 0.5) {
-		RandomComments.push(arr[getRandomNumber(arr)]);
-	} else {
-		RandomComments.push(arr[getRandomNumber(arr)]);
-		RandomComments.push(arr[getRandomNumber(arr)]);
-	}
+  var RandomComments = [];
+  if (Math.random() < 0.5) {
+    RandomComments.push(arr[getRandomNumber(arr)]);
+  } else {
+    RandomComments.push(arr[getRandomNumber(arr)]);
+    RandomComments.push(arr[getRandomNumber(arr)]);
+  }
 
-	return RandomComments;
-}
+  return RandomComments;
+};
 
 var createPicturesArray = function (array, url, comments) {
   for (var i = 0; i < url.length; i++) {
