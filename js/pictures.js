@@ -1,5 +1,7 @@
 'use strict';
 
+var PICTURES = 25;
+
 var removeHidden = function (querySelector) {
   document.querySelector(querySelector).classList.remove('hidden');
 };
@@ -50,23 +52,32 @@ var createPicturesArray = function (array, url, comments) {
   return array;
 };
 
-var renderPicture = function (i) {
+var renderPicture = function (array) {
   var pictureElement = picture.cloneNode(true);
 
-  pictureElement.querySelector('.picture__img').src = pictureArray[i].src;
-  pictureElement.querySelector('.picture__stat--likes').textContent = pictureArray[i].likes;
-  pictureElement.querySelector('.picture__stat--comments').textContent = pictureArray[i].comments.length;
+  pictureElement.querySelector('.picture__img').src = array.src;
+  pictureElement.querySelector('.picture__stat--likes').textContent = array.likes;
+  pictureElement.querySelector('.picture__stat--comments').textContent = array.comments.length;
 
   return pictureElement;
 };
 
 var pictureList = function () {
   var fragment = document.createDocumentFragment();
-  for (var i = 0; i < 25; i++) {
-    fragment.appendChild(renderPicture(i));
+  for (var i = 0; i < PICTURES; i++) {
+    fragment.appendChild(renderPicture(picturesArray[i]));
   }
 
   return fragment;
+};
+
+var renderBigPicture = function (array) {
+  var bigPicture = document.querySelector('.big-picture');
+  bigPicture.querySelector('.big-picture__img img').src = array.src;
+  bigPicture.querySelector('.likes-count').textContent = array.likes;
+  bigPicture.querySelector('.comments-count').textContent = array.comments.length;
+  bigPicture.querySelector('.social__comments').appendChild(createCommentTemplate(array.comments));
+  bigPicture.querySelector('.social__caption').textContent = array.description;
 };
 
 var createCommentTemplate = function (textMessage) {
@@ -87,7 +98,7 @@ var createCommentTemplate = function (textMessage) {
   return comment;
 };
 
-var pictureArray = [];
+var picturesArray = [];
 var url = [];
 
 var commentsArray = [
@@ -110,7 +121,7 @@ var descriptionArray = [
 
 createArray(url, 1, 25);
 
-createPicturesArray(pictureArray, url, commentsArray);
+createPicturesArray(picturesArray, url, commentsArray);
 
 var picture = document.querySelector('#picture')
   .content.querySelector('.picture__link');
@@ -119,12 +130,7 @@ var pictures = document.querySelector('.pictures');
 pictures.appendChild(pictureList());
 
 removeHidden('.big-picture');
-var bigPicture = document.querySelector('.big-picture');
-bigPicture.querySelector('.big-picture__img img').src = pictureArray[0].src;
-bigPicture.querySelector('.likes-count').textContent = pictureArray[0].likes;
-bigPicture.querySelector('.comments-count').textContent = pictureArray[0].comments.length;
-bigPicture.querySelector('.social__comments').appendChild(createCommentTemplate(pictureArray[0].comments));
-bigPicture.querySelector('.social__caption').textContent = pictureArray[0].description;
+renderBigPicture(picturesArray[0]);
 
 addVisuallyHidden('.social__comment-count');
 addVisuallyHidden('.social__loadmore');
