@@ -119,7 +119,7 @@ var descriptionArray = [
   'Вот это тачка!'
 ];
 
-createArray(url, 1, 25);
+createArray(url, 1, PICTURES);
 
 createPicturesArray(picturesArray, url, commentsArray);
 
