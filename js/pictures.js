@@ -2,30 +2,71 @@
 // Общее
 
 var ESC_KEYCODE = 27;
-
 var PICTURES = 25;
 
-var LIKES_MIN = 15;
-var LIKES_MAX = 200;
+var Likes = {
+  MIN: 15,
+  MAX: 200
+};
 
-var AVATAR_MIN = 1;
-var AVATAR_MAX = 6;
+var Avatar = {
+  MIN: 1,
+  MAX: 6
+};
 
-var HASHTAGS_COUNT_MAX = 5;
-var HASHTAG_LENGTH_MIN = 2;
-var HASHTAG_LENGTH_MAX = 20;
+var Scale = {
+  MAX: 100,
+  MIN: 25,
+  STEP: 25
+};
 
-/*
 var Hashtags = {
   COUNT_MAX: 5,
   LENGTH_MIN: 2,
   LENGTH_MAX: 20
 };
-*/
 
 var imageUpload = document.querySelector('.img-upload');
 var textHashtags = imageUpload.querySelector('.text__hashtags');
 var textDescription = imageUpload.querySelector('.text__description');
+
+var picturesArray = [];
+var url = [];
+
+var commentsArray = [
+  'Всё отлично!',
+  'В целом всё неплохо. Но не всё.',
+  'Когда вы делаете фотографию, хорошо бы убирать палец из кадра. В конце концов это просто непрофессионально.',
+  'Моя бабушка случайно чихнула с фотоаппаратом в руках и у неё получилась фотография лучше.',
+  'Я поскользнулся на банановой кожуре и уронил фотоаппарат на кота и у меня получилась фотография лучше.',
+  'Лица у людей на фотке перекошены, как будто их избивают. Как можно было поймать такой неудачный момент?!'
+];
+
+var descriptionArray = [
+  'Тестим новую камеру!',
+  'Затусили с друзьями на море',
+  'Как же круто тут кормят',
+  'Отдыхаем...',
+  'Цените каждое мгновенье. Цените тех, кто рядом с вами и отгоняйте все сомненья. Не обижайте всех словами......',
+  'Вот это тачка!'
+];
+var imageUploadPopup = imageUpload.querySelector('.img-upload__overlay');
+var imageUploadCancel = imageUpload.querySelector('.img-upload__cancel');
+
+
+var pictureScale = Scale.MAX;
+
+var resizeControlValue = document.querySelector('.resize__control--value');
+
+var resizeControlMinus = document.querySelector('.resize__control--minus');
+var resizeControlPlus = document.querySelector('.resize__control--plus');
+var MAX_FILTER_VALUE = 100;
+var imageUploadPreview = imageUpload.querySelector('.img-upload__preview');
+var imageUploadPreviewImg = imageUpload.querySelector('.img-upload__preview img');
+var imageUploadScale = imageUpload.querySelector('.img-upload__scale');
+var scalePin = imageUpload.querySelector('.scale__pin');
+var scaleLevel = imageUpload.querySelector('.scale__level');
+var effectsList = imageUpload.querySelector('.effects__list');
 
 var onPopupEscPress = function (evt) {
   if (evt.keyCode === ESC_KEYCODE && textHashtags !== evt.target && textDescription !== evt.target) {
@@ -67,11 +108,11 @@ var getRandomComments = function (arr) {
   return RandomComments;
 };
 
-var createPicturesArray = function (array, url, comments) {
-  for (var i = 0; i < url.length; i++) {
+var createPicturesArray = function (array, address, comments) {
+  for (var i = 0; i < address.length; i++) {
     array[i] = {
-      src: url[i],
-      likes: getRandomNumberRange(LIKES_MIN, LIKES_MAX),
+      src: address[i],
+      likes: getRandomNumberRange(Likes.MIN, Likes.MAX),
       comments: getRandomComments(comments),
       description: descriptionArray[getRandomNumber(descriptionArray)]
     };
@@ -127,7 +168,7 @@ var createCommentTemplate = function (textMessage) {
   commentImg.classList.add('social__picture');
   commentText.classList.add('social__text');
 
-  commentImg.src = 'img/avatar-' + getRandomNumberRange(AVATAR_MIN, AVATAR_MAX) + '.svg';
+  commentImg.src = 'img/avatar-' + getRandomNumberRange(Avatar.MIN, Avatar.MAX) + '.svg';
   commentText.textContent = textMessage;
 
   comment.appendChild(commentImg);
@@ -135,27 +176,6 @@ var createCommentTemplate = function (textMessage) {
 
   return comment;
 };
-
-var picturesArray = [];
-var url = [];
-
-var commentsArray = [
-  'Всё отлично!',
-  'В целом всё неплохо. Но не всё.',
-  'Когда вы делаете фотографию, хорошо бы убирать палец из кадра. В конце концов это просто непрофессионально.',
-  'Моя бабушка случайно чихнула с фотоаппаратом в руках и у неё получилась фотография лучше.',
-  'Я поскользнулся на банановой кожуре и уронил фотоаппарат на кота и у меня получилась фотография лучше.',
-  'Лица у людей на фотке перекошены, как будто их избивают. Как можно было поймать такой неудачный момент?!'
-];
-
-var descriptionArray = [
-  'Тестим новую камеру!',
-  'Затусили с друзьями на море',
-  'Как же круто тут кормят',
-  'Отдыхаем...',
-  'Цените каждое мгновенье. Цените тех, кто рядом с вами и отгоняйте все сомненья. Не обижайте всех словами......',
-  'Вот это тачка!'
-];
 
 createArray(url, 1, PICTURES);
 
@@ -170,37 +190,40 @@ pictures.appendChild(pictureList());
 addVisuallyHidden('.social__comment-count');
 addVisuallyHidden('.social__loadmore');
 
-// Открытие и закрытие формы
-var imageUploadPopup = imageUpload.querySelector('.img-upload__overlay');
-var imageUploadCancel = imageUpload.querySelector('.img-upload__cancel');
-var imageUploadForm = imageUpload.querySelector('.img-upload__form');
-
 var openPopup = function () {
   imageUploadPopup.classList.remove('hidden');
-  // imageUploadScale.classList.add('hidden'); // срабатывает каждый раз и не дают addEffect вернуть Scale
   document.addEventListener('keydown', onPopupEscPress);
+};
+
+var applyPictureScale = function (controlValue) {
+  resizeControlValue.value = controlValue + '%';
+  imageUploadPreview.style.transform = 'scale(' + (controlValue / 100) + ')';
+};
+
+var lastFilter = 'none';
+
+var resetImgForm = function () {
+  applyPictureScale(100);
+  imageUploadPreviewImg.setAttribute('class', '');
+  imageUploadPreviewImg.style.filter = 'none';
+  imageUploadScale.classList.add('hidden');
 };
 
 var closePopup = function () {
   imageUploadPopup.classList.add('hidden');
-  imageUploadForm.reset();// не работает почему ? Хочу сбросить форму
-
   document.removeEventListener('keydown', onPopupEscPress);
 };
 
 imageUpload.addEventListener('change', function () {
   openPopup();
-  applyPictureScale(pictureScale); // НЕ ЗАБУДЬ, ВЫЗОВ ДОЛЖЕН БЫТЬ НИЖЕ ОБЪЯВЛЕНИЯ
 });
 
 imageUploadCancel.addEventListener('click', function () {
   closePopup();
+  resetImgForm();
 });
 
-// Открытие и закрытие большой картинки
-
 var bigPicture = document.querySelector('.big-picture');
-//  var picturesLinksOpen = document.querySelectorAll('.picture__link');
 var bigPictureClose = bigPicture.querySelector('.big-picture__cancel');
 
 var openBigPicture = function () {
@@ -213,25 +236,9 @@ var closeBigPicture = function () {
   document.removeEventListener('keydown', onPopupEscPress);
 };
 
-
 bigPictureClose.addEventListener('click', function () {
   closeBigPicture();
 });
-
-// Работа с эффектами
-
-var MAX_FILTER_VALUE = 100;
-
-// imageUpload будет в другом месте, не забудь.
-var imageUploadPreview = imageUpload.querySelector('.img-upload__preview');
-var imageUploadPreviewImg = imageUpload.querySelector('.img-upload__preview img');
-var imageUploadScale = imageUpload.querySelector('.img-upload__scale');
-var scalePin = imageUpload.querySelector('.scale__pin');
-var scaleLevel = imageUpload.querySelector('.scale__level');
-var effectsList = imageUpload.querySelector('.effects__list');
-
-var lastFilter = 'none';
-
 
 effectsList.addEventListener('click', function (evt) {
   var target = evt.target;
@@ -285,36 +292,17 @@ var addEffect = function (effectName) {
   imageUploadPreviewImg.classList.add('effects__preview--' + effectName);
 };
 
-// Изменение масштаба
-
-var MAX_SCALE_VALUE = 100;
-var MIN_SCALE = 25;
-var MAX_SCALE = 100;
-var SCALE_STEP = 25;
-
-var pictureScale = MAX_SCALE_VALUE;
-
-var resizeControlValue = document.querySelector('.resize__control--value');
-
-var resizeControlMinus = document.querySelector('.resize__control--minus');
-var resizeControlPlus = document.querySelector('.resize__control--plus');
-
-var applyPictureScale = function (controlValue) {
-  resizeControlValue.value = controlValue + '%';
-  imageUploadPreview.style.transform = 'scale(' + (controlValue / 100) + ')';
-};
-
 var onMinusClick = function () {
-  if (pictureScale > MIN_SCALE) {
-    pictureScale -= SCALE_STEP;
+  if (pictureScale > Scale.MIN) {
+    pictureScale -= Scale.STEP;
   }
 
   applyPictureScale(pictureScale);
 };
 
 var onPlusClick = function () {
-  if (pictureScale < MAX_SCALE) {
-    pictureScale += SCALE_STEP;
+  if (pictureScale < Scale.MAX) {
+    pictureScale += Scale.STEP;
   }
 
   applyPictureScale(pictureScale);
@@ -322,8 +310,6 @@ var onPlusClick = function () {
 
 resizeControlMinus.addEventListener('click', onMinusClick);
 resizeControlPlus.addEventListener('click', onPlusClick);
-
-// Валидация формы загрузки фото
 
 var isDuplicateItemExist = function (item, array) {
   var currentItem = item;
@@ -342,17 +328,17 @@ var onHashtagInput = function (evt) {
   var target = evt.target;
   var hashtags = target.value.split(' ');
 
-  if (hashtags.length > HASHTAGS_COUNT_MAX) {
+  if (hashtags.length > Hashtags.COUNT_MAX) {
     target.setCustomValidity('Не больше 5 хэш-тегов');
   } else {
     for (var i = 0; i < hashtags.length; i++) {
       if (hashtags[i][0] !== '#') {
         target.setCustomValidity('Все хэш-теги должны начинаться с символа # (решётка), между хэш-тегами один пробел');
         break;
-      } else if (hashtags[i].length > HASHTAG_LENGTH_MAX) {
+      } else if (hashtags[i].length > Hashtags.LENGTH_MAX) {
         target.setCustomValidity('Максимальная длина одного хэш-тега 20 символов, включая решётку');
         break;
-      } else if (hashtags[i].length < HASHTAG_LENGTH_MIN) {
+      } else if (hashtags[i].length < Hashtags.LENGTH_MIN) {
         target.setCustomValidity('Хеш-тег не может состоять только из одной решётки');
         break;
       } else if (isDuplicateItemExist(hashtags[i], hashtags) === true) {
@@ -366,5 +352,3 @@ var onHashtagInput = function (evt) {
 };
 
 textHashtags.addEventListener('change', onHashtagInput);
-
-imageUploadScale.classList.add('hidden');
