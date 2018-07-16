@@ -1,6 +1,4 @@
 'use strict';
-// Валидация, переменные в виде объектов.
-
 // Общее
 
 var ESC_KEYCODE = 27;
@@ -62,13 +60,14 @@ var resizeControlValue = document.querySelector('.resize__control--value');
 
 var resizeControlMinus = document.querySelector('.resize__control--minus');
 var resizeControlPlus = document.querySelector('.resize__control--plus');
-var MAX_FILTER_VALUE = 100;
+
 var imageUploadPreview = imageUpload.querySelector('.img-upload__preview');
 var imageUploadPreviewImg = imageUpload.querySelector('.img-upload__preview img');
 var imageUploadScale = imageUpload.querySelector('.img-upload__scale');
-var scalePin = imageUpload.querySelector('.scale__pin');
-var scaleLevel = imageUpload.querySelector('.scale__level');
 var effectsList = imageUpload.querySelector('.effects__list');
+
+var lastFilter = 'none';
+var filterName = 'none';
 
 var onPopupEscPress = function (evt) {
   if (evt.keyCode === ESC_KEYCODE && textHashtags !== evt.target && textDescription !== evt.target) {
@@ -202,7 +201,6 @@ var applyPictureScale = function (controlValue) {
   imageUploadPreview.style.transform = 'scale(' + (controlValue / 100) + ')';
 };
 
-var lastFilter = 'none';
 
 var resetImgForm = function () {
   applyPictureScale(100);
@@ -246,13 +244,14 @@ effectsList.addEventListener('click', function (evt) {
   var target = evt.target;
 
   if (target.classList.contains('effects__radio')) {
-    var filterName = target.id.replace('effect-', '');
+    filterName = target.id.replace('effect-', '');
 
     imageUploadPreviewImg.classList.remove('effects__preview--' + lastFilter);
     imageUploadPreviewImg.style.filter = 'none';
 
+    setDefaultPosition();
     addEffect(filterName);
-    getFilters(filterName, MAX_FILTER_VALUE);
+    getFilters(positionPinValue);
 
     if (filterName === 'none') {
       imageUploadScale.classList.add('hidden');
@@ -264,7 +263,7 @@ effectsList.addEventListener('click', function (evt) {
   }
 });
 
-var getFilters = function (filterName, sliderValue) {
+var getFilters = function (sliderValue) {
   var result;
   switch (filterName) {
     case 'chrome':
@@ -285,8 +284,6 @@ var getFilters = function (filterName, sliderValue) {
     default: result = 'none';
       break;
   }
-  scalePin.style.left = MAX_FILTER_VALUE + '%';
-  scaleLevel.style.width = MAX_FILTER_VALUE + '%';
   imageUploadPreviewImg.style.filter = result;
 };
 
@@ -354,3 +351,62 @@ var onHashtagInput = function (evt) {
 };
 
 textHashtags.addEventListener('change', onHashtagInput);
+
+var positionPinValue = document.querySelector('.scale__value').value;
+
+var SLIDER_WIDTH = 450;
+var MAX_PERCENT = 100;
+
+var scalePinElement = document.querySelector('.scale__pin');
+var scaleLevelElement = document.querySelector('.scale__level');
+
+var setDefaultPosition = function () {
+  scalePinElement.style.left = '100%';
+  scaleLevelElement.style.width = '100%';
+  positionPinValue = MAX_PERCENT;
+};
+
+setDefaultPosition();
+
+scalePinElement.addEventListener('mouseup', function () {
+  getFilters(parseInt(positionPinValue, 10));
+});
+
+scalePinElement.addEventListener('mousedown', function (evt) {
+  evt.preventDefault();
+
+  var startCoords = {
+    x: evt.clientX
+  };
+
+  var onMouseMove = function (moveEvt) {
+    moveEvt.preventDefault();
+
+    var shift = {
+      x: startCoords.x - moveEvt.clientX
+    };
+
+    startCoords = {
+      x: moveEvt.clientX
+    };
+
+    var leftOffsetPin = scalePinElement.offsetLeft - shift.x;
+
+    if (leftOffsetPin >= 0 && SLIDER_WIDTH >= leftOffsetPin) {
+      scalePinElement.style.left = leftOffsetPin + 'px';
+      scaleLevelElement.style.width = positionPinValue + '%';
+      positionPinValue = Math.floor((leftOffsetPin * MAX_PERCENT) / SLIDER_WIDTH);
+      getFilters(parseInt(positionPinValue, 10));
+    }
+  };
+
+  var onMouseUp = function (upEvt) {
+    upEvt.preventDefault();
+
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+  };
+
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup', onMouseUp);
+});
