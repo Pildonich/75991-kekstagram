@@ -65,9 +65,10 @@
   var picturesLoad = [];
 
   var updatePictures = function (filterName) {
+    var pictureFiltr = picturesLoad.slice();
     switch (filterName) {
       case 'filter-new':
-        picturesLoad = picturesLoad.sort(function (first, second) {
+        pictureFiltr = pictureFiltr.sort(function (first, second) {
           if (first.likes < second.likes) {
             return 1;
           } else if (first.likes > second.likes) {
@@ -78,7 +79,7 @@
         });
         break;
       case 'filter-discussed':
-        picturesLoad = picturesLoad.sort(function (first, second) {
+        pictureFiltr = pictureFiltr.sort(function (first, second) {
           if (first.comments.length < second.comments.length) {
             return 1;
           } else if (first.comments.length > second.comments.length) {
@@ -89,7 +90,7 @@
         });
         break;
     }
-    render(picturesLoad);
+    render(pictureFiltr);
   };
 
   filterFormElement.addEventListener('click', function (evt) {
@@ -109,7 +110,7 @@
   });
 
   var successHandler = function (array) {
-    picturesLoad = array;
+    picturesLoad = array.slice();
 
     var imgFilters = document.querySelector('.img-filters');
 
