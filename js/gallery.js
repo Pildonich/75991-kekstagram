@@ -4,37 +4,10 @@
 
   var PICTURES = 25;
 
-  var Likes = {
-    MIN: 15,
-    MAX: 200
-  };
-
-  var commentsArray = [
-    'Всё отлично!',
-    'В целом всё неплохо. Но не всё.',
-    'Когда вы делаете фотографию, хорошо бы убирать палец из кадра. В конце концов это просто непрофессионально.',
-    'Моя бабушка случайно чихнула с фотоаппаратом в руках и у неё получилась фотография лучше.',
-    'Я поскользнулся на банановой кожуре и уронил фотоаппарат на кота и у меня получилась фотография лучше.',
-    'Лица у людей на фотке перекошены, как будто их избивают. Как можно было поймать такой неудачный момент?!'
-  ];
-
-  var descriptionArray = [
-    'Тестим новую камеру!',
-    'Затусили с друзьями на море',
-    'Как же круто тут кормят',
-    'Отдыхаем...',
-    'Цените каждое мгновенье. Цените тех, кто рядом с вами и отгоняйте все сомненья. Не обижайте всех словами......',
-    'Вот это тачка!'
-  ];
-
   var picture = document.querySelector('#picture')
     .content.querySelector('.picture__link');
 
   var pictures = document.querySelector('.pictures');
-
-
-  var picturesArray = [];
-  var url = [];
 
   var getRandomNumber = function (arr) {
     return Math.floor(Math.random() * arr.length);
@@ -58,34 +31,10 @@
     return RandomComments;
   };
 
-  var createArray = function (array, min, max) {
-    for (var i = 0; i < max; i++) {
-      array.push('photos/' + (min + i) + '.jpg');
-    }
-    return array;
-  };
-
-  createArray(url, 1, PICTURES);
-
-  var createPicturesArray = function (array, address, comments) {
-    for (var i = 0; i < address.length; i++) {
-      array[i] = {
-        src: address[i],
-        likes: getRandomNumberRange(Likes.MIN, Likes.MAX),
-        comments: getRandomComments(comments),
-        description: descriptionArray[getRandomNumber(descriptionArray)]
-      };
-      array.push(array[i]);
-    }
-    return array;
-  };
-
-  createPicturesArray(picturesArray, url, commentsArray);
-
   var renderPicture = function (array) {
     var pictureElement = picture.cloneNode(true);
     pictureElement.tabIndex = 0;
-    pictureElement.querySelector('.picture__img').src = array.src;
+    pictureElement.querySelector('.picture__img').src = array.url;
     pictureElement.querySelector('.picture__stat--likes').textContent = array.likes;
     pictureElement.querySelector('.picture__stat--comments').textContent = array.comments.length;
 
@@ -103,18 +52,89 @@
     return pictureElement;
   };
 
-  var pictureList = function () {
+  var render = function (array) {
     var fragment = document.createDocumentFragment();
     for (var i = 0; i < PICTURES; i++) {
-      fragment.appendChild(renderPicture(picturesArray[i]));
+      fragment.appendChild(renderPicture(array[i]));
     }
-
-    return fragment;
+    pictures.appendChild(fragment);
   };
 
-  pictures.appendChild(pictureList());
+  var activeClassNameElement = 'img-filters__button--active';
+  var filterFormElement = document.querySelector('.img-filters__form');
+  var picturesLoad = [];
+
+  var updatePictures = function (filterName) {
+    switch (filterName) {
+      case 'filter-new':
+        picturesLoad = picturesLoad.sort(function (first, second) {
+          if (first.likes < second.likes) {
+            return 1;
+          } else if (first.likes > second.likes) {
+            return -1;
+          } else {
+            return 0;
+          }
+        });
+        break;
+      case 'filter-discussed':
+        picturesLoad = picturesLoad.sort(function (first, second) {
+          if (first.comments.length < second.comments.length) {
+            return 1;
+          } else if (first.comments.length > second.comments.length) {
+            return -1;
+          } else {
+            return 0;
+          }
+        });
+        break;
+    }
+    render(picturesLoad);
+  };
+
+  filterFormElement.addEventListener('click', function (evt) {
+    var target = evt.target;
+
+    if (target.tagName === 'BUTTON') {
+      var selectedFilter = filterFormElement.querySelector('.' + activeClassNameElement);
+
+      if (selectedFilter) {
+        selectedFilter.classList.remove(activeClassNameElement);
+      }
+
+      target.classList.add(activeClassNameElement);
+
+      updatePictures(target.id);
+    }
+  });
+
+  var successHandler = function (array) {
+    picturesLoad = array;
+
+    var imgFilters = document.querySelector('.img-filters');
+
+    imgFilters.classList.remove('img-filters--inactive');
+    render(picturesLoad);
+
+    return picturesLoad;
+  };
+
+  var errorHandler = function (errorMessage) {
+    var node = document.createElement('div');
+    node.style = 'z-index: 100; margin: 0 auto; text-align: center; background-color: red;';
+    node.style.position = 'absolute';
+    node.style.left = 0;
+    node.style.right = 0;
+    node.style.fontSize = '30px';
+
+    node.textContent = errorMessage;
+    document.body.insertAdjacentElement('afterbegin', node);
+  };
+
+  window.backend.load(successHandler, errorHandler);
 
   window.gallery = {
-    getRandomNumberRange: getRandomNumberRange
+    getRandomNumberRange: getRandomNumberRange,
+    getRandomComments: getRandomComments
   };
 })();
