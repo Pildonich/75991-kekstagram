@@ -17,6 +17,7 @@
   };
 
   var imageUpload = document.querySelector('.img-upload');
+  var uploadForm = imageUpload.querySelector('.img-upload__form');
   var textHashtags = imageUpload.querySelector('.text__hashtags');
   var textDescription = imageUpload.querySelector('.text__description');
   var imageUploadPopup = imageUpload.querySelector('.img-upload__overlay');
@@ -234,6 +235,16 @@
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
   });
+
+  uploadForm.addEventListener('submit', function (evt) {
+    window.backend.save(new FormData(uploadForm), function () {
+    });
+    closePopup();
+    resetImgForm();
+    uploadForm.reset();
+    evt.preventDefault();
+  });
+
   window.form = {
     textHashtags: textHashtags,
     textDescription: textDescription,
