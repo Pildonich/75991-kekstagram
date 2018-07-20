@@ -16,6 +16,9 @@
     LENGTH_MAX: 20
   };
 
+  var SLIDER_WIDTH = 450;
+  var MAX_PERCENT = 100;
+
   var imageUpload = document.querySelector('.img-upload');
   var uploadForm = imageUpload.querySelector('.img-upload__form');
   var textHashtags = imageUpload.querySelector('.text__hashtags');
@@ -26,13 +29,19 @@
   var imageUploadPreviewImg = imageUpload.querySelector('.img-upload__preview img');
   var imageUploadScale = imageUpload.querySelector('.img-upload__scale');
 
-  var resizeControlValue = document.querySelector('.resize__control--value');
-  var resizeControlMinus = document.querySelector('.resize__control--minus');
-  var resizeControlPlus = document.querySelector('.resize__control--plus');
+  var resizeControlValue = imageUpload.querySelector('.resize__control--value');
+  var resizeControlMinus = imageUpload.querySelector('.resize__control--minus');
+  var resizeControlPlus = imageUpload.querySelector('.resize__control--plus');
 
   var effectsList = imageUpload.querySelector('.effects__list');
   var lastFilter = 'none';
   var filterName = 'none';
+
+  var positionPinValue = document.querySelector('.scale__value').value;
+
+  var scalePinElement = document.querySelector('.scale__pin');
+  var scaleLevelElement = document.querySelector('.scale__level');
+
 
   var openPopup = function () {
     imageUploadPopup.classList.remove('hidden');
@@ -42,16 +51,19 @@
   var applyPictureScale = function (controlValue) {
     resizeControlValue.value = controlValue + '%';
     imageUploadPreview.style.transform = 'scale(' + (controlValue / 100) + ')';
+    pictureScale = controlValue;
   };
 
   var resetImgForm = function () {
-    applyPictureScale(100);
+    uploadForm.reset();
+    applyPictureScale(Scale.MAX);
     imageUploadPreviewImg.setAttribute('class', '');
     imageUploadPreviewImg.style.filter = 'none';
     imageUploadScale.classList.add('hidden');
   };
 
   var closePopup = function () {
+    resetImgForm();
     imageUploadPopup.classList.add('hidden');
     document.removeEventListener('keydown', window.renderBigPicture.onPopupEscPress);
   };
@@ -62,7 +74,6 @@
 
   imageUploadCancel.addEventListener('click', function () {
     closePopup();
-    resetImgForm();
   });
 
   effectsList.addEventListener('click', function (evt) {
@@ -177,13 +188,6 @@
 
   textHashtags.addEventListener('change', onHashtagInput);
 
-  var positionPinValue = document.querySelector('.scale__value').value;
-
-  var SLIDER_WIDTH = 450;
-  var MAX_PERCENT = 100;
-
-  var scalePinElement = document.querySelector('.scale__pin');
-  var scaleLevelElement = document.querySelector('.scale__level');
 
   var setDefaultPosition = function () {
     scalePinElement.style.left = '100%';

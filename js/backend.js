@@ -1,5 +1,5 @@
 'use strict';
-
+// работа с сетью
 (function () {
   var POST = 'https://js.dump.academy/kekstagram';
   var GET = 'https://js.dump.academy/kekstagram/data';
