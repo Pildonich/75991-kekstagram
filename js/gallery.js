@@ -2,6 +2,10 @@
 
 (function () {
 
+  var ENTER_KEYCODE = 13;
+  var RANDOM_PICTURES = 10;
+
+
   var picture = document.querySelector('#picture')
     .content.querySelector('.picture__link');
 
@@ -12,26 +16,10 @@
   var picturesLoad = [];
   var pictureFiltr = [];
 
-  var getRandomNumber = function (arr) {
-    return Math.floor(Math.random() * arr.length);
-  };
-
   var getRandomNumberRange = function (min, max) {
     var rand = min + Math.random() * (max + 1 - min);
     rand = Math.floor(rand);
     return rand;
-  };
-
-  var getRandomComments = function (arr) {
-    var RandomComments = [];
-    if (Math.random() < 0.5) {
-      RandomComments.push(arr[getRandomNumber(arr)]);
-    } else {
-      RandomComments.push(arr[getRandomNumber(arr)]);
-      RandomComments.push(arr[getRandomNumber(arr)]);
-    }
-
-    return RandomComments;
   };
 
   var renderPicture = function (array) {
@@ -42,14 +30,16 @@
     pictureElement.querySelector('.picture__stat--comments').textContent = array.comments.length;
 
     pictureElement.addEventListener('click', function () {
-      window.renderBigPicture.renderBigPicture(array);
-      window.renderBigPicture.openBigPicture();
+      window.bigPicture.renderBigPicture(array);
+      window.bigPicture.openBigPicture();
     });
 
-    pictureElement.addEventListener('keydown', function () {
+    pictureElement.addEventListener('keydown', function (evt) {
       // проверка на нажатие Enter
-      window.renderBigPicture.renderBigPicture(array);
-      window.renderBigPicture.openBigPicture();
+      if (evt.keyCode === ENTER_KEYCODE) {
+        window.bigPicture.renderBigPicture(array);
+        window.bigPicture.openBigPicture();
+      }
     });
 
     return pictureElement;
@@ -58,7 +48,7 @@
   var removePhotos = function () {
     var collectionPhotos = pictures.querySelectorAll('.picture__link');
     if (collectionPhotos) {
-      [].forEach.call(collectionPhotos, function (element) {
+      collectionPhotos.forEach.call(collectionPhotos, function (element) {
         pictures.removeChild(element);
       });
     }
@@ -80,7 +70,7 @@
         pictureFiltr = pictureFiltr.sort(function () {
           return Math.random() - 0.5;
         });
-        pictureFiltr = pictureFiltr.slice(0, 10);
+        pictureFiltr = pictureFiltr.slice(0, RANDOM_PICTURES);
         break;
       case 'filter-discussed':
         pictureFiltr = pictureFiltr.sort(function (first, second) {
@@ -132,7 +122,6 @@
   window.backend.load(successHandler, errorHandler);
 
   window.gallery = {
-    getRandomNumberRange: getRandomNumberRange,
-    getRandomComments: getRandomComments
+    getRandomNumberRange: getRandomNumberRange
   };
 })();

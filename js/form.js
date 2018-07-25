@@ -45,7 +45,7 @@
 
   var openPopup = function () {
     imageUploadPopup.classList.remove('hidden');
-    document.addEventListener('keydown', window.renderBigPicture.onPopupEscPress);
+    document.addEventListener('keydown', window.bigPicture.onPopupEscPress);
   };
 
   var applyPictureScale = function (controlValue) {
@@ -65,7 +65,7 @@
   var closePopup = function () {
     resetImgForm();
     imageUploadPopup.classList.add('hidden');
-    document.removeEventListener('keydown', window.renderBigPicture.onPopupEscPress);
+    document.removeEventListener('keydown', window.bigPicture.onPopupEscPress);
   };
 
   imageUpload.addEventListener('change', function () {
@@ -168,13 +168,16 @@
     } else {
       for (var i = 0; i < hashtags.length; i++) {
         if (hashtags[i][0] !== '#') {
-          target.setCustomValidity('Все хэш-теги должны начинаться с символа # (решётка), между хэш-тегами один пробел');
+          target.setCustomValidity('Все хэш-теги должны начинаться с символа # (решётка)');
           break;
         } else if (hashtags[i].length > Hashtags.LENGTH_MAX) {
           target.setCustomValidity('Максимальная длина одного хэш-тега 20 символов, включая решётку');
           break;
         } else if (hashtags[i].length < Hashtags.LENGTH_MIN) {
           target.setCustomValidity('Хеш-тег не может состоять только из одной решётки');
+          break;
+        } else if (hashtags[i].indexOf('#', 1) > 0) {
+          target.setCustomValidity('Хэш-теги разделяются пробелами');
           break;
         } else if (isDuplicateItemExist(hashtags[i], hashtags) === true) {
           target.setCustomValidity('Не должно быть одинаковых хэш-тегов');
@@ -194,8 +197,6 @@
     scaleLevelElement.style.width = '100%';
     positionPinValue = MAX_PERCENT;
   };
-
-  setDefaultPosition();
 
   scalePinElement.addEventListener('mouseup', function () {
     getFilters(parseInt(positionPinValue, 10));
