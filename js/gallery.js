@@ -30,15 +30,16 @@
     pictureElement.querySelector('.picture__stat--comments').textContent = array.comments.length;
 
     pictureElement.addEventListener('click', function () {
-      window.bigPicture.renderBigPicture(array);
       window.bigPicture.openBigPicture();
+      window.bigPicture.renderBigPicture(array);
+
     });
 
     pictureElement.addEventListener('keydown', function (evt) {
       // проверка на нажатие Enter
       if (evt.keyCode === ENTER_KEYCODE) {
-        window.bigPicture.renderBigPicture(array);
         window.bigPicture.openBigPicture();
+        window.bigPicture.renderBigPicture(array);
       }
     });
 

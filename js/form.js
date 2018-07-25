@@ -37,10 +37,10 @@
   var lastFilter = 'none';
   var filterName = 'none';
 
-  var positionPinValue = document.querySelector('.scale__value').value;
+  var positionPinValue = imageUpload.querySelector('.scale__value');
 
-  var scalePinElement = document.querySelector('.scale__pin');
-  var scaleLevelElement = document.querySelector('.scale__level');
+  var scalePinElement = imageUpload.querySelector('.scale__pin');
+  var scaleLevelElement = imageUpload.querySelector('.scale__level');
 
 
   var openPopup = function () {
@@ -87,7 +87,7 @@
 
       setDefaultPosition();
       addEffect(filterName);
-      getFilters(positionPinValue);
+      getFilters(positionPinValue.value);
 
       if (filterName === 'none') {
         imageUploadScale.classList.add('hidden');
@@ -195,11 +195,11 @@
   var setDefaultPosition = function () {
     scalePinElement.style.left = '100%';
     scaleLevelElement.style.width = '100%';
-    positionPinValue = MAX_PERCENT;
+    positionPinValue.value = MAX_PERCENT;
   };
 
   scalePinElement.addEventListener('mouseup', function () {
-    getFilters(parseInt(positionPinValue, 10));
+    getFilters(parseInt(positionPinValue.value, 10));
   });
 
   scalePinElement.addEventListener('mousedown', function (evt) {
@@ -224,9 +224,9 @@
 
       if (leftOffsetPin >= 0 && SLIDER_WIDTH >= leftOffsetPin) {
         scalePinElement.style.left = leftOffsetPin + 'px';
-        scaleLevelElement.style.width = positionPinValue + '%';
-        positionPinValue = Math.floor((leftOffsetPin * MAX_PERCENT) / SLIDER_WIDTH);
-        getFilters(parseInt(positionPinValue, 10));
+        scaleLevelElement.style.width = positionPinValue.value + '%';
+        positionPinValue.value = Math.floor((leftOffsetPin * MAX_PERCENT) / SLIDER_WIDTH);
+        getFilters(parseInt(positionPinValue.value, 10));
       }
     };
 
