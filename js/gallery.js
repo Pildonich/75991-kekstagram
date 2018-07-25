@@ -49,7 +49,7 @@
   var removePhotos = function () {
     var collectionPhotos = pictures.querySelectorAll('.picture__link');
     if (collectionPhotos) {
-      collectionPhotos.forEach.call(collectionPhotos, function (element) {
+      collectionPhotos.forEach(function (element) {
         pictures.removeChild(element);
       });
     }
