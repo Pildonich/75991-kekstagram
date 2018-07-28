@@ -19,8 +19,11 @@
   var SLIDER_WIDTH = 450;
   var MAX_PERCENT = 100;
 
+  var FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
+
   var imageUpload = document.querySelector('.img-upload');
   var uploadForm = imageUpload.querySelector('.img-upload__form');
+  var uploadFormInput = imageUpload.querySelector('.img-upload__input');
   var textHashtags = imageUpload.querySelector('.text__hashtags');
   var textDescription = imageUpload.querySelector('.text__description');
   var imageUploadPopup = imageUpload.querySelector('.img-upload__overlay');
@@ -68,7 +71,24 @@
     document.removeEventListener('keydown', window.bigPicture.onPopupEscPress);
   };
 
-  imageUpload.addEventListener('change', function () {
+  uploadFormInput.addEventListener('change', function () {
+    var file = uploadFormInput.files[0];
+    var fileName = file.name.toLowerCase();
+
+    var matches = FILE_TYPES.some(function (it) {
+      return fileName.endsWith(it);
+    });
+
+    if (matches) {
+      var reader = new FileReader();
+
+      reader.addEventListener('load', function () {
+        imageUploadPreviewImg.src = reader.result;
+      });
+
+      reader.readAsDataURL(file);
+    }
+
     openPopup();
   });
 
@@ -241,13 +261,49 @@
     document.addEventListener('mouseup', onMouseUp);
   });
 
-  uploadForm.addEventListener('submit', function (evt) {
-    window.backend.save(new FormData(uploadForm), function () {
-    });
+  var successSaveHandler = function () {
     closePopup();
     resetImgForm();
     uploadForm.reset();
+  };
+
+  var errorSaveHandler = function (errorMessage) {
+    var ErrorTemplate = document.querySelector('#picture').content.querySelector('.img-upload__message--error');
+
+    var drawErrorMessage = function () {
+      var ErrorElement = ErrorTemplate.cloneNode(true);
+      ErrorElement.classList.remove('hidden');
+      return ErrorElement;
+    };
+
+    var fragment = document.createDocumentFragment();
+    fragment.appendChild(drawErrorMessage());
+    document.body.appendChild(fragment);
+
+    var node = document.createElement('div');
+    node.style = 'line-height: 30px';
+    node.textContent = errorMessage;
+
+    var errorLinks = document.querySelector('.error__links');
+    errorLinks.insertAdjacentElement('beforebegin', node);
+    imageUploadPopup.classList.add('hidden');
+
+    var oneMoreTime = errorLinks.querySelector('.one-more-time');
+
+    var otherFile = errorLinks.querySelector('.other-file');
+    oneMoreTime.addEventListener('click', function () {
+      openPopup();
+      document.body.removeChild(document.querySelector('.img-upload__message--error'));
+    });
+    otherFile.addEventListener('click', function () {
+      closePopup();
+      document.body.removeChild(document.querySelector('.img-upload__message--error'));
+    });
+  };
+
+  uploadForm.addEventListener('submit', function (evt) {
     evt.preventDefault();
+    window.backend.save(new FormData(uploadForm), successSaveHandler, errorSaveHandler);
   });
 
   window.form = {

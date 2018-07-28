@@ -30,16 +30,16 @@
     pictureElement.querySelector('.picture__stat--comments').textContent = array.comments.length;
 
     pictureElement.addEventListener('click', function () {
-      window.bigPicture.openBigPicture();
-      window.bigPicture.renderBigPicture(array);
+      window.bigPicture.open();
+      window.bigPicture.render(array);
 
     });
 
     pictureElement.addEventListener('keydown', function (evt) {
       // проверка на нажатие Enter
       if (evt.keyCode === ENTER_KEYCODE) {
-        window.bigPicture.openBigPicture();
-        window.bigPicture.renderBigPicture(array);
+        window.bigPicture.open();
+        window.bigPicture.render(array);
       }
     });
 
@@ -123,6 +123,7 @@
   window.backend.load(successHandler, errorHandler);
 
   window.gallery = {
-    getRandomNumberRange: getRandomNumberRange
+    getRandomNumberRange: getRandomNumberRange,
+    errorHandler: errorHandler
   };
 })();
